@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright Â© 2011 Perberos
+# Copyright © 2011 Perberos
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-pkgdir=src # the folder where is the code, be carefull
+pkgdir=. # the folder where is the code, be carefull
 
 replaces=(
 
@@ -56,6 +56,8 @@ replaces=(
 	'MATE|Applets' 'GNOME|Applets'
 	'MATE|Applications' 'GNOME|Applications'
 	'MATE|Multimedia' 'GNOME|Multimedia'
+
+	'.mate.org' '.gnome.org'
 
 	'libnotify' 'libmatenotify'
 	'LIBNOTIFY' 'LIBMATENOTIFY'
@@ -101,7 +103,7 @@ replaces=(
 	'mateconfvideosink' 'gconfvideosink'
 
 	'TAMATECONFIG' 'TAGCONFIG'
-	
+
 	# GNOME Keyboard
 	'gkbd' 'matekbd'
 	'Gkbd' 'Matekbd'
@@ -139,7 +141,7 @@ replaces=(
 
 	# Eye of GNOME
 	'eog' 'eom' # only on the exe generated name
-	
+
 	# gedit
 	'gedit' 'pluma'
 	'GEDIT' 'PLUMA'
@@ -155,7 +157,7 @@ replaces=(
 #
 # rename files and folders
 #
-dirs=$(find "$pkgdir/" -type d | sed "s|^${pkgdir}/||")
+dirs=$(find "$pkgdir/" -type d -not -iwholename '*.git*' | sed "s|^${pkgdir}/||")
 # for revert the order of folders, so the rename is safe
 revertdirs=
 
@@ -167,16 +169,16 @@ done
 for dirsname in ${revertdirs}; do
 	oldname=`basename $dirsname`
 	newname=$oldname
-	
+
 	for index in $(seq 0 2 $((${#replaces[@]} - 1))); do
 		newname=${newname/${replaces[$index]}/${replaces[$index + 1]}}
 	done
-	
+
 	if [ $oldname != $newname ]; then
 		echo "renaming folder $oldname to $newname"
-		
+
 		path=`dirname "$pkgdir/$dirsname"`
-		
+
 		retval=`mv "$path/$oldname" "$path/$newname"`
 	fi
 done
@@ -184,21 +186,21 @@ done
 #
 # rename files
 #
-files=$(find "$pkgdir/" -type f | sed "s|^${pkgdir}/||")
+files=$(find "$pkgdir/" -type f -not -iwholename '*.git*' | sed "s|^${pkgdir}/||")
 # files mv
 for filename in ${files}; do
 	oldname=`basename $filename`
 	newname=$oldname
-	
+
 	for index in $(seq 0 2 $((${#replaces[@]} - 1))); do
 		newname=${newname/${replaces[$index]}/${replaces[$index + 1]}}
 	done
-	
+
 	if [ $oldname != $newname ]; then
 		echo "renaming file $oldname to $newname"
-		
+
 		path=`dirname "$pkgdir/$filename"`
-		
+
 		retval=`mv "$path/$oldname" "$path/$newname"`
 	fi
 done
@@ -206,18 +208,15 @@ done
 #
 # rename file contents
 #
-files=$(find "$pkgdir/" -type f | sed "s|^${pkgdir}/||")
+files=$(find "$pkgdir/" -type f -not \( -iwholename '*.git*' -o -name "ChangeLog*" -o -name NEWS \) | sed "s|^${pkgdir}/||")
 
 for filename in ${files}; do
-	datacontent=`cat "$pkgdir/$filename"`
-	datacontentold=$datacontent
-	for index in $(seq 0 2 $((${#replaces[@]} - 1))); do
-		#sed -i "s/${replaces[$index]}/${replaces[$index + 1]}/g" "$pkgdir/$filename"
-		datacontent=${datacontent/${replaces[$index]}/${replaces[$index + 1]}}
-	done
-	
-	if [ "$datacontentold" != "$datacontent" ]; then
-		echo "saving $filename"
-		echo "$datacontent" > "$pkgdir/$filename"
-	fi
+	{
+		echo "Processig $filename…"
+		for index in $(seq 0 2 $((${#replaces[@]} - 1))); do
+			sed -i "s/${replaces[$index]}/${replaces[$index + 1]}/g" "$pkgdir/$filename"
+			# datacontent=${datacontent/${replaces[$index]}/${replaces[$index + 1]}}
+		done
+		echo "…done $filename"
+	} &
 done

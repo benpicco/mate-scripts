@@ -1,0 +1,5 @@
+A simple script for renaming GNOME components to MATE components, most Gnome
+applications should run afterwards, version numbers of required components
+have to be adjusted manually.
+
+taken from https://github.com/perberos/Mate-Desktop-Environment/wiki/Migrating and extended

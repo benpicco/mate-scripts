@@ -57,7 +57,7 @@ replaces=(
 	'MATE|Applications' 'GNOME|Applications'
 	'MATE|Multimedia' 'GNOME|Multimedia'
 
-	'.mate.org' '.gnome.org'
+	'mate.org' 'gnome.org'
 
 	'libnotify' 'libmatenotify'
 	'LIBNOTIFY' 'LIBMATENOTIFY'
@@ -114,6 +114,10 @@ replaces=(
 	'GMenu' 'MateMenu'
 	'gmenu' 'matemenu'
 	'GMENU' 'MATEMENU'
+
+	'alacarte' 'mozo'
+	'Alacarte' 'Mozo'
+	'ALACARTE' 'MOZO'
 
 	# polkit
 	'polkitgtk' 'polkitgtkmate'

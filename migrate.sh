@@ -58,6 +58,7 @@ replaces=(
 	'MATE|Multimedia' 'GNOME|Multimedia'
 
 	'mate.org' 'gnome.org'
+	'mate.gr.jp' 'gnome.gr.jp'
 
 	'libnotify' 'libmatenotify'
 	'LIBNOTIFY' 'LIBMATENOTIFY'

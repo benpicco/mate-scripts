@@ -2,7 +2,7 @@
 
 caja-share				0.7.3+ (git, 2011-12-04)
 libcaja-extension			?
-libmate					?
+libmate					2.32.1 (git)
 libmatecanvas				2.30.3 (git)
 libmatecomponent			?
 libmatecomponentui			?

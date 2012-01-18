@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# checks out a mate and a gnome repository,
+# then extracts and converts all gnome patches
+# from since mate has been forked and tries to apply them
 
 upstream_git=$1
 fork_git=$2

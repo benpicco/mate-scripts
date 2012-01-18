@@ -6,9 +6,9 @@ libmatecanvas				2.30.3 (git)
 libmatecomponent			?
 libmatecomponentui			?
 libmatekbd				2.32.0+ (git)
-libmatekeyring				?
+libmatekeyring				2.32.0+ (git 2011-02-28
 libmatenotify				0.5.2 (current is 0.7.4)
-libmateui				2.24.5 (git 2011.09.08)
+libmateui				2.24.5 (git 2011-09-08)
 libmateweather				2.30.3
 mate-applets				?
 mate-backgrounds			?

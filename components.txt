@@ -53,7 +53,7 @@ mate-terminal				?
 mate-text-editor			?
 mate-themes				?
 mate-utils				?
-mate-vfs				?
+mate-vfs				2.24.4 (git 2011-05-27)
 mate-window-manager			3.0 (git 2012-01-16 + patches)
 mpegthumbnailer-caja			?
 python-caja				?

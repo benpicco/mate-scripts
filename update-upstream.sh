@@ -28,6 +28,15 @@ cd ..
 
 echo "Checking out $fork_git (fork)…"
 git clone $fork_git fork
+
+if [ ! -f fork/.gitignore ]; then
+	cp upstream/.gitignore fork/
+	cd fork
+	git add .gitignore
+	git commit .gitignore -m "add .gitignore"
+	cd ..
+fi
+
 cd fork
 for patch in ../patches/*.patch; do
 	if git apply --check $patch 2> /dev/null; then

@@ -9,7 +9,7 @@ libmatecomponentui			?
 libmatekbd				?
 libmatekeyring				?
 libmatenotify				?
-libmateui				?
+libmateui				2.24.5 (git 2011.09.08)
 libmateweather				?
 mate-applets				?
 mate-backgrounds			?
@@ -62,3 +62,4 @@ python-corba				?
 python-mate				?
 python-mate-desktop			?
 
+Note: backported upsream patches usually don't include fixes for translations and compiler warnings

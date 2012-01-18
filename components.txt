@@ -33,7 +33,7 @@ mate-file-manager-sendto		?
 mate-icon-theme				?
 mate-image-viewer			?
 mate-indicator-applet			?
-mate-keyring				?
+mate-keyring				2.32.1 (git, 2011-11-21)
 mate-media				?
 mate-menu-editor			?
 mate-menus				?

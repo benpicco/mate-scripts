@@ -29,9 +29,13 @@ cd ..
 echo "Checking out $fork_git (fork)…"
 git clone $fork_git fork
 
+# since mate was created from tarballs, .gitignore might be missing
 if [ ! -f fork/.gitignore ]; then
-	cp upstream/.gitignore fork/
-	cd fork
+	cd upstream
+	git checkout $since .gitignore
+	cp .gitignore ../fork/
+	git checkout $branch .gitignore
+	cd ../fork
 	git add .gitignore
 	git commit .gitignore -m "add .gitignore"
 	cd ..

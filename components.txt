@@ -32,7 +32,7 @@ mate-file-manager-open-terminal		?
 mate-file-manager-sendto		?
 mate-icon-theme				?
 mate-image-viewer			?
-mate-indicator-applet			?
+mate-indicator-applet			0.4.12
 mate-keyring				2.32.1 (git, 2011-11-21)
 mate-media				?
 mate-menu-editor			?
@@ -46,7 +46,7 @@ mate-power-manager			?
 mate-screensaver			?
 mate-sensors-applet			?
 mate-session-manager			?
-mate-settings-daemon			?
+mate-settings-daemon			2.32.0+ (git 2011-09-30)
 mate-system-monitor			?
 mate-system-tools			?
 mate-terminal				?

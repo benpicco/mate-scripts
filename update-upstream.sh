@@ -9,7 +9,7 @@ fork_git=$2
 since=$3
 branch=$4
 
-migrate=`dirname $0`/migrate.sh
+migrate=`pwd`/`dirname $0`/migrate.sh
 
 if [ -z $since ]; then
 	echo "usage: $0 [upstream_git] [forked_git] [since] [branch]"

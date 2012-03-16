@@ -228,3 +228,7 @@ for filename in ${files}; do
 		echo "…done $filename"
 	} &
 done
+
+wait ${!}
+
+echo "done."

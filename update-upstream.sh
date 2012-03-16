@@ -23,6 +23,7 @@ fi
 echo "Checking out $upstream_git (upstream)…"
 
 mkdir patches
+mkdir patches/skipped
 git clone --branch $branch $upstream_git upstream
 cd upstream
 git format-patch -o ../patches $since
@@ -48,7 +49,7 @@ fi
 cd fork
 for patch in ../patches/*.patch; do
 	if [[ `echo $patch | tr [:upper:] [:lower:]` == *translation*  ]]; then
-		rm $patch
+		mv $patch ../patches/skipped/
 		echo "skipping $patch"
 	else
 		if git apply --check $patch 2> /dev/null; then

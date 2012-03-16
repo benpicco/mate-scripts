@@ -47,10 +47,15 @@ fi
 
 cd fork
 for patch in ../patches/*.patch; do
-	if git apply --check $patch 2> /dev/null; then
-		git am < $patch
+	if [[ `echo $patch | tr [:upper:] [:lower:]` == *translation*  ]]; then
 		rm $patch
+		echo "skipping $patch"
 	else
-		echo "$patch failed!"
+		if git apply --check $patch 2> /dev/null; then
+			git am < $patch
+			rm $patch
+		else
+			echo "$patch failed!"
+		fi
 	fi
 done

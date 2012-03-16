@@ -46,7 +46,7 @@ mate-power-manager			?
 mate-screensaver			?
 mate-sensors-applet			?
 mate-session-manager			?
-mate-settings-daemon			2.32.0+ (git 2011-09-30)
+mate-settings-daemon			2.32.0+ (git 2011-09-30)	OK
 mate-system-monitor			?
 mate-system-tools			?
 mate-terminal				?

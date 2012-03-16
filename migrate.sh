@@ -19,7 +19,7 @@ pkgdir=. # the folder where is the code, be carefull
 replaces=(
 
 	'ior-decode-2' 'matecorba-ior-decode-2'
-	'linc-cleanup-sockets' 'matecorba-linc-cleanup-sockets' 
+	'linc-cleanup-sockets' 'matecorba-linc-cleanup-sockets'
 	'typelib-dump' 'matecorba-typelib-dump'
 	'libname-server-2' 'libname-matecorba-server-2'
 
@@ -38,6 +38,9 @@ replaces=(
 	'gnome' 'mate'
 	'GNOME' 'MATE'
 	'Gnome' 'Mate'
+
+#	srsly?
+#	'gsd' 'msd'
 
 	'Metacity' 'Marco'
 	'metacity' 'marco'

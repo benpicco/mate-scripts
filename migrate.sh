@@ -14,8 +14,15 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-pkgdir=. # the folder where is the code, be carefull
-
+# either provide a command line option otherwise src folder will be considered.
+if [ $# -gt 0 ]
+then	
+  pkgdir=$1 # the folder where is the code, be carefull
+else
+  pkgdir=src
+fi
+#support for space in filename
+IFS=$'\n' 
 replaces=(
 
 	'ior-decode-2' 'matecorba-ior-decode-2'

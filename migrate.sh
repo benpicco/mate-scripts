@@ -1,5 +1,13 @@
 #!/bin/bash
 # Copyright © 2011 Perberos
+# Original version fetched from:
+# https://github.com/perberos/Mate-Desktop-Environment/wiki/Migrating
+#
+# Extended by benpicco
+# https://github.com/jasmineaura/mate-scripts/blob/master/migrate.sh
+#
+# Updated by Jasmine Hassan <jasmine.aura@gmail.com>
+# https://github.com/jasmineaura/mate-scripts/blob/master/migrate.sh
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -14,17 +22,29 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-# either provide a command line option otherwise src folder will be considered.
-if [ $# -gt 0 ]
-then	
-  pkgdir=$1 # the folder where is the code, be carefull
-else
-  pkgdir=src
-fi
-#support for space in filename
-IFS=$'\n' 
-replaces=(
+##########
+#
+# If no argument is specified, script will try to look in src/, if exists.
+#
 
+if [ $# -gt 0 ]; then
+  # translates symlinks and relative paths(./ ../ ../../ etc..)
+  pkgdir=`readlink -f $1`
+  [ "$1" != "$pkgdir" ] && echo "[*] Resolved '$1' -> '$pkgdir'"
+
+  [ ! -e "$pkgdir" ] && printf "[!] '$pkgdir' does not exist.\nExiting!\n" && exit 1
+  [ ! -d "$pkgdir" ] && printf "[!] '$pkgdir' is not a directory.\nExiting!\n" && exit 1
+elif [ -d "src" ]; then
+  pkgdir="`pwd`/src"
+else
+  echo "[!] You didn't specify a directory, and script couldn't find an 'src/' in the current directoy:"
+  printf "    `pwd`\nExiting!\n" && exit 1
+fi
+
+
+# Readonly array. Runtime modification attempt must throw error.
+readonly -a  \
+replaces=(
 	'ior-decode-2' 'matecorba-ior-decode-2'
 	'linc-cleanup-sockets' 'matecorba-linc-cleanup-sockets'
 	'typelib-dump' 'matecorba-typelib-dump'
@@ -45,6 +65,10 @@ replaces=(
 	'gnome' 'mate'
 	'GNOME' 'MATE'
 	'Gnome' 'Mate'
+
+#includes
+
+	'<gconf\/gconf-' '<mateconf\/mateconf\/2\/mateconf\/mateconf-'
 
 #	srsly?
 #	'gsd' 'msd'
@@ -169,73 +193,106 @@ replaces=(
 	'Evince' 'Atril'
 )
 
-#
-# rename files and folders
-#
-dirs=$(find "$pkgdir/" -type d -not -iwholename '*.git*' | sed "s|^${pkgdir}/||")
-# for revert the order of folders, so the rename is safe
-revertdirs=
 
-for dirsname in ${dirs}; do
-	revertdirs="$dirsname $revertdirs"
-done
 
-# directory mv
-for dirsname in ${revertdirs}; do
-	oldname=`basename $dirsname`
-	newname=$oldname
+MV_ACTION="Renaming:  "
 
-	for index in $(seq 0 2 $((${#replaces[@]} - 1))); do
-		newname=${newname/${replaces[$index]}/${replaces[$index + 1]}}
-	done
+if [ "x$RENAME" != "x1" ]; then
+	echo "[-] Renaming files/dirs *disabled* by default. Script only prints what needs renaming."
+  echo -e "    For auto-renaming, run again with RENAME=1:\n    \$ RENAME=1 $0 $@"
+  MV_ACTION="Skipping:   "
+fi
 
-	if [ $oldname != $newname ]; then
-		echo "renaming folder $oldname to $newname"
 
-		path=`dirname "$pkgdir/$dirsname"`
-
-		retval=`mv "$path/$oldname" "$path/$newname"`
-	fi
-done
+FILES=($(find "$pkgdir/" -type f -not \( -ipath '*.git*' -o -iname "changeLog*" -o -name INSTALL \
+  -o -name NEWS -o -name AUTHORS -o -name COPYING* -o -name TODO -o -iname copyright \
+  -o -name config.sub -o -name config.guess -o -name config.status -o -name config.log \) -printf '%P\n'))
+echo "[*] Analyzing ${#FILES[@]} files..."
 
 #
-# rename files
+# patch files
 #
-files=$(find "$pkgdir/" -type f -not -iwholename '*.git*' | sed "s|^${pkgdir}/||")
-# files mv
-for filename in ${files}; do
-	oldname=`basename $filename`
-	newname=$oldname
 
-	for index in $(seq 0 2 $((${#replaces[@]} - 1))); do
-		newname=${newname/${replaces[$index]}/${replaces[$index + 1]}}
-	done
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+NORMAL=$(tput sgr0)
 
-	if [ $oldname != $newname ]; then
-		echo "renaming file $oldname to $newname"
+# We should back up IFS before messing with it (difficult to set in shell)
+origIFS=$IFS
+#InternalFieldSeperator. Only use newlines as seperator?
+IFS=$'\n'
+text=$(for key in $(seq 0 2 $((${#replaces[@]} - 1))); do echo ${replaces[$key]}; done)
 
-		path=`dirname "$pkgdir/$filename"`
+############# TODO http://stackoverflow.com/questions/9066609/fastest-possible-grep ##############
 
-		retval=`mv "$path/$oldname" "$path/$newname"`
-	fi
-done
-
-#
-# rename file contents
-#
-files=$(find "$pkgdir/" -type f -not \( -iwholename '*.git*' -o -name "ChangeLog*" -o -name NEWS \) | sed "s|^${pkgdir}/||")
-
-for filename in ${files}; do
-	{
-		echo "Processig $filename…"
-		for index in $(seq 0 2 $((${#replaces[@]} - 1))); do
-			sed -i "s/${replaces[$index]}/${replaces[$index + 1]}/g" "$pkgdir/$filename"
-			# datacontent=${datacontent/${replaces[$index]}/${replaces[$index + 1]}}
+for F in ${FILES[@]}; do
+  {
+    [[ -n $(grep -F "$text" "$pkgdir/$F") ]] || continue
+		fprocess="Processing: '$F'" && col=$((`tput cols`-${#fprocess})) && echo -n $fprocess
+		for key in $(seq 0 2 $((${#replaces[@]} - 1))); do
+		  [[ -n $(grep -F "${replaces[$key]}" "$pkgdir/$F") ]] || continue
+			sed -i "s/${replaces[$key]}/${replaces[$key + 1]}/g" "$pkgdir/$F" || echo "${replaces[$key]} -> ${replaces[$key + 1]}"
+			# datacontent=${datacontent/${replaces[$key]}/${replaces[$key + 1]}}
 		done
-		echo "…done $filename"
-	} &
+		printf '%s%*s%s' "$GREEN" "$col" "[DONE]" "$NORMAL"
+	} & 
+	wait $!
+done
+IFS=$origIFS
+
+
+#
+# Analyze/rename dirs
+#
+
+# We need to rename directories in reverse order (higher levels first)
+# Do we have the awesome "tac"? (reverse cat, from coreutils pkg)
+if [ -x /usr/bin/tac ]; then
+  echo "[+] Got 'tac' :>"
+  DIRS=($(find "$pkgdir/" -type d -not -ipath '*.git*' -printf '%P\n' | grep -v "^$" | tac))
+else
+  DIRS=($(find "$pkgdir/" -type d -not -ipath '*.git*' -printf '%P\n' | grep -v "^$"))
+  for ((i=${#DIRS[@]}-1; i>=0; i--)); do
+    DIRS=("${DIRS[@]}" ${DIRS[i]}) && unset DIRS[i]
+  done
+fi
+echo "[*] Checking ${#DIRS[@]} directory names..."
+
+for dir in ${DIRS[@]}; do
+  path=$(dirname "$pkgdir/$dir")
+  oldname=$(basename "$dir")
+  newname=$oldname
+  for key in $(seq 0 2 $((${#replaces[@]} - 1))); do
+    [[ "$newname" == *"${replaces[$key]}"* ]] && \
+    newname=${newname/${replaces[$key]}/${replaces[$key + 1]}}
+  done
+
+  if [ "$newname" != "$oldname" ]; then
+    echo -e "$MV_ACTION mv $path/$oldname\t$path/$newname"
+    [ "x$RENAME" = "x1" ] && mv "$path/$oldname" "$path/$newname"
+  fi
 done
 
-wait ${!}
 
-echo "done."
+#
+# Check/rename files
+#
+echo "[*] Checking ${#FILES[@]} filenames..."
+
+for file in ${FILES[@]}; do
+  path=$(dirname "$pkgdir/$file")
+  oldname=$(basename "$file")
+  newname=$oldname
+  for key in $(seq 0 2 $((${#replaces[@]} - 1))); do
+    [[ "$newname" == *"${replaces[$key]}"* ]] && \
+    newname=${newname/${replaces[$key]}/${replaces[$key + 1]}}
+  done
+
+  if [ "$newname" != "$oldname" ]; then
+    echo -e "$MV_ACTION mv $path/$oldname\t$path/$newname"
+    [ "x$RENAME" = "x1" ] && mv "$path/$oldname" "$path/$newname"
+  fi
+done
+
+
+echo "All operations completed, mate. ;)"
